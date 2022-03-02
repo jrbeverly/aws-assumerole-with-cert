@@ -1,0 +1,42 @@
+name: Publish files to AWS S3
+permissions: read-all
+
+on:
+  push:
+    paths:
+      - .github/workflows/ci.yaml
+  workflow_dispatch:
+
+jobs:
+  publish:
+    name: Upload to Amazon S3
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Authenticate with AWS
+      run: |
+        # Write ${secrets.AUTH_CERTIFICATE} to file
+        # Write ${secrets.AUTH_CERTIFICATE_KEY} to file
+        response="$(curl -s \
+          --cert "certificate.pem.crt" \
+          --key "private.pem.crt" \
+          ${secrets.AUTH_HEADERS} \
+          ${secrets.AUTH_HTTPS_ENDPOINT})""
+        
+        # Setup the AWS Credentials file using the response
+        mkdir -p ~/.aws
+        touch ~/.aws/credentials
+        echo "aws_access_key_id=$(jq -r '.credentials.accessKeyId')" >> ~/.aws/credentials
+        echo "aws_secret_access_key=$(jq -r '.credentials.secretAccessKey')" >> ~/.aws/credentials
+        echo "aws_session_token=$(jq -r '.credentials.sessionToken')" >> ~/.aws/credentials
+
+    - name: Copy files to the test website with the AWS CLI
+      run: |
+        aws s3 sync . s3://my-s3-test-website-bucket
