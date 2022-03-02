@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Config
+preferences: {}
+current-role: "us-east-1"
+roles:
+- role:
+    certificate: |
+      -----BEGIN CERTIFICATE-----
+      fakekeygoeshere
+      -----END CERTIFICATE-----
+    key: |
+      -----BEGIN RSA PRIVATE KEY-----
+      fakekeygoeshere
+      -----END RSA PRIVATE KEY-----
+    payload: 
+      thingname: github-aws-assumerole-with-cert
+    endpoint: https://FAKEID.credentials.iot.us-east-1.amazonaws.com/role-aliases/github-aws-assumerole-with-cert/credentials
+  name: us-east-1
